@@ -43,9 +43,14 @@ public class LoginWindow extends JFrame {
             char[] password = passwordField.getPassword();
 
             if (Authentication.authenticate(username, new String(password))) {
-                // TODO: Open main window
-                JOptionPane.showMessageDialog(LoginWindow.this, 
-                    "Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                // Close the login window
+                dispose();
+
+                // Open the main application window
+                SwingUtilities.invokeLater(() -> {
+                    MainWindow mainWindow = new MainWindow();
+                    mainWindow.setVisible(true);
+                });
             } else {
                 JOptionPane.showMessageDialog(LoginWindow.this, 
                     "Invalid username or password", "Error", JOptionPane.ERROR_MESSAGE);
