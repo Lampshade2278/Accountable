@@ -1,3 +1,5 @@
+// This is the entry point of application
+
 package com.accountable.gui;
 
 import com.accountable.core.Authentication;
