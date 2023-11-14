@@ -28,9 +28,9 @@ public class LoginWindow extends JFrame {
 
         usernameField = new JTextField();
         passwordField = new JPasswordField();
-        inputPanel.add(new JLabel("Username:"));
+        inputPanel.add(new JLabel("   Username:"));
         inputPanel.add(usernameField);
-        inputPanel.add(new JLabel("Password:"));
+        inputPanel.add(new JLabel("   Password:"));
         inputPanel.add(passwordField);
 
         JPanel buttonPanel = new JPanel();
@@ -44,7 +44,7 @@ public class LoginWindow extends JFrame {
                 String password = new String(passwordField.getPassword());
 
                 if (Authentication.authenticate(username, password)) {
-                    // Assuming success, dispose the login window and open the main window
+                    // Assuming success, dispose of the login window and open the main window
                     dispose();
                     MainWindow mainWindow = new MainWindow(); // Replace with your main window class
                     mainWindow.setVisible(true);
@@ -64,7 +64,7 @@ public class LoginWindow extends JFrame {
 
                 // Example registration logic, replace with your own logic as necessary
                 if (Authentication.signUp(username, password)) {
-                    JOptionPane.showMessageDialog(LoginWindow.this, "Registration successful.", "Registration", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(LoginWindow.this, "Registration successful!", "Registration", JOptionPane.INFORMATION_MESSAGE);
                 } else {
                     JOptionPane.showMessageDialog(LoginWindow.this, "Registration failed.", "Registration", JOptionPane.ERROR_MESSAGE);
                 }
@@ -76,14 +76,5 @@ public class LoginWindow extends JFrame {
 
         add(inputPanel, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new LoginWindow().setVisible(true);
-            }
-        });
     }
 }
