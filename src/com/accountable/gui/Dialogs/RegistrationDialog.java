@@ -1,5 +1,5 @@
 
-package com.accountable.gui;
+package com.accountable.gui.Dialogs;
 
 import javax.swing.*;
 import java.awt.*;
@@ -41,6 +41,8 @@ public class RegistrationDialog extends JDialog {
         add(cancelButton);
     }
 
+    boolean registrationSuccessful = false;
+
     private void registerUser() {
         String username = usernameField.getText();
         char[] password = passwordField.getPassword();
@@ -53,14 +55,20 @@ public class RegistrationDialog extends JDialog {
 
         // Assuming User class has a method to create a new user
         boolean userCreated = User.createUser(username, new String(password));
+
         if (userCreated) {
+            registrationSuccessful = true;
             JOptionPane.showMessageDialog(this, "Registration successful", "Success", JOptionPane.INFORMATION_MESSAGE);
+            User.createUser(username, new String(password));
             dispose();
         } else {
+            registrationSuccessful = false;
             JOptionPane.showMessageDialog(this, "Registration failed", "Error", JOptionPane.ERROR_MESSAGE);
         }
-        User.createUser(username, new String(password));
-        JOptionPane.showMessageDialog(this, "Registration successful", "Success", JOptionPane.INFORMATION_MESSAGE);
-        dispose();
+
+    }
+
+    public boolean isRegistrationSuccessful() {
+        return registrationSuccessful;
     }
 }
