@@ -21,7 +21,7 @@ public class ApplicationLauncher {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+//hihh
         // Any other global setup can be done here
     }
 }
