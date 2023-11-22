@@ -1,7 +1,7 @@
 package com.accountable.gui;
 //This is a comment
 import javax.swing.*;
-//beasleys test
+
 public class ApplicationLauncher {
     public static void main(String[] args) {
         // Set up the look and feel or any initial configurations if necessary
@@ -21,7 +21,7 @@ public class ApplicationLauncher {
         } catch (Exception e) {
             e.printStackTrace();
         }
-//hihh
+
         // Any other global setup can be done here
     }
 }
