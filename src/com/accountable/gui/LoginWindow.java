@@ -1,6 +1,5 @@
 package com.accountable.gui;
 
-import com.accountable.gui.Dialogs.RegistrationDialog;
 import com.accountable.core.Authentication;
 import javax.swing.*;
 import java.awt.*;

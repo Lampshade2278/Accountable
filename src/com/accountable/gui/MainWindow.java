@@ -5,10 +5,10 @@ import java.awt.*;
 
 public class MainWindow extends JFrame {
 
-    private String currentUsername;
+    private String username;
 
     public MainWindow(String username) {
-        this.currentUsername = username;
+        this.username = username;
 
         setTitle("Accountable - Main Window");
         setSize(800, 600);
@@ -21,13 +21,13 @@ public class MainWindow extends JFrame {
         tabbedPane.addTab("Expenses", new ExpensePanel());
         tabbedPane.addTab("Income", new IncomePanel());
         tabbedPane.addTab("Reports", new ReportPanel());
-        tabbedPane.addTab("Settings", new SettingsPanel(currentUsername));
+        tabbedPane.addTab("Settings", new SettingsPanel(username));
 
         add(tabbedPane, BorderLayout.CENTER);
     }
 
     public String getCurrentUsername() {
-        return currentUsername;
+        return username;
     }
 
     public static void main(String[] args) {

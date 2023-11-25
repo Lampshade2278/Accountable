@@ -1,5 +1,7 @@
 package com.accountable.gui;
 
+import com.accountable.core.Authentication;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -40,45 +42,25 @@ public class RegistrationWindow extends JFrame {
         // Position the window in the center of the screen
         setLocationRelativeTo(null);
     }
-
     private void registerUser(String username, String password) {
-        // Hash the password for security
-        String hashedPassword = hashPassword(password);
+        // Use the signUp method from the Authentication class to register the user
+        boolean isSignUpSuccessful = Authentication.signUp(username, password);
 
-        // File to store user credentials
-        Path file = Paths.get("users.txt");
-
-        try (BufferedReader reader = Files.newBufferedReader(file)) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] userDetails = line.split(",");
-                if (userDetails[0].equals(username)) {
-                    JOptionPane.showMessageDialog(this, "User already exists.");
-                    return;
-                }
-            }
-        } catch (IOException e) {
-            // For a real application, use logging instead of printStackTrace
-            e.printStackTrace();
-        }
-
-        try (BufferedWriter writer = Files.newBufferedWriter(file, StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
-            writer.write(username + "," + hashedPassword + System.lineSeparator());
+        if (isSignUpSuccessful) {
             JOptionPane.showMessageDialog(this, "Registration successful!");
-        } catch (IOException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error registering user.");
+
+            // Close the registration window
+            this.dispose();
+
+            // Open the MainWindow and pass the username
+            SwingUtilities.invokeLater(() -> {
+                MainWindow mainWindow = new MainWindow(username);
+                mainWindow.setVisible(true);
+            });
+        } else {
+            JOptionPane.showMessageDialog(this, "Registration failed. User may already exist.");
         }
     }
 
-    private String hashPassword(String password) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hashedBytes = md.digest(password.getBytes(StandardCharsets.UTF_8));
-            return Base64.getEncoder().encodeToString(hashedBytes);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return null;
-        }
     }
-}
+
