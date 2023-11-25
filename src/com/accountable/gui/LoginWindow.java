@@ -19,7 +19,7 @@ public class LoginWindow extends JFrame {
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JButton loginButton;
-    private JButton registerButton;
+    //private JButton registerButton;
 
     public LoginWindow() {
         setTitle("Login");
@@ -45,6 +45,7 @@ public class LoginWindow extends JFrame {
             }
         });
 
+        /*
         registerButton = new JButton("Register");
         registerButton.addActionListener(new ActionListener() {
             @Override
@@ -52,9 +53,11 @@ public class LoginWindow extends JFrame {
                 onRegisterClicked();
             }
         });
+        */
+
 
         buttonPanel.add(loginButton);
-        buttonPanel.add(registerButton);
+        //buttonPanel.add(registerButton);
 
         add(inputPanel, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
@@ -74,6 +77,7 @@ public class LoginWindow extends JFrame {
         }
     }
 
+    /*
     // Method to handle registration logic
     private void onRegisterClicked() {
         RegistrationDialog registrationDialog = new RegistrationDialog(this);
@@ -86,6 +90,8 @@ public class LoginWindow extends JFrame {
             startNewUserWorkflow(mainWindow);
         }
     }
+    */
+
 
     // Method gets called after a new user has successfully registered.
     private void startNewUserWorkflow(MainWindow mainWindow) {
