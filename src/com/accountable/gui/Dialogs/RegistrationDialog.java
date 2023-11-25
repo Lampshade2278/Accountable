@@ -1,11 +1,9 @@
-
 package com.accountable.gui.Dialogs;
 
+import com.accountable.core.User;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import com.accountable.core.User; // Assuming User class exists in the core package for user creation
 
 public class RegistrationDialog extends JDialog {
 
@@ -13,6 +11,8 @@ public class RegistrationDialog extends JDialog {
     private JPasswordField passwordField;
     private JButton registerButton;
     private JButton cancelButton;
+    private boolean registrationSuccessful = false;
+    private String registeredUsername;
 
     public RegistrationDialog(JFrame parent) {
         super(parent, "Register", true);
@@ -28,12 +28,7 @@ public class RegistrationDialog extends JDialog {
         add(passwordField);
 
         registerButton = new JButton("Register");
-        registerButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                registerUser();
-            }
-        });
+        registerButton.addActionListener(this::registerUser);
         add(registerButton);
 
         cancelButton = new JButton("Cancel");
@@ -41,34 +36,32 @@ public class RegistrationDialog extends JDialog {
         add(cancelButton);
     }
 
-    boolean registrationSuccessful = false;
-
-    private void registerUser() {
+    private void registerUser(ActionEvent e) {
         String username = usernameField.getText();
         char[] password = passwordField.getPassword();
 
-        // Basic validation (more comprehensive validation can be implemented)
         if (username.isEmpty() || password.length == 0) {
             JOptionPane.showMessageDialog(this, "Username and password cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // Assuming User class has a method to create a new user
         boolean userCreated = User.createUser(username, new String(password));
 
         if (userCreated) {
             registrationSuccessful = true;
+            registeredUsername = username;
             JOptionPane.showMessageDialog(this, "Registration successful", "Success", JOptionPane.INFORMATION_MESSAGE);
-            User.createUser(username, new String(password));
             dispose();
         } else {
-            registrationSuccessful = false;
-            JOptionPane.showMessageDialog(this, "Registration failed", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Registration failed or username already exists", "Error", JOptionPane.ERROR_MESSAGE);
         }
-
     }
 
     public boolean isRegistrationSuccessful() {
         return registrationSuccessful;
+    }
+
+    public String getRegisteredUsername() {
+        return registeredUsername;
     }
 }
