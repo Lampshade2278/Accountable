@@ -120,7 +120,7 @@ public class SettingsPanel extends JPanel {
 
     private void saveSettings(ActionEvent e) {
         ThemeManager.Theme theme = darkModeCheckBox.isSelected() ? ThemeManager.Theme.DARK : ThemeManager.Theme.LIGHT;
-        saveSettingPreference("theme", theme.toString());
+        saveSettingPreference(theme.toString());
 
         JFrame mainWindow = (JFrame) SwingUtilities.getWindowAncestor(this);
         if (mainWindow != null) {
@@ -149,7 +149,7 @@ public class SettingsPanel extends JPanel {
     }
 
     void loadAndApplyTheme() {
-        String themeSetting = loadSettingPreference("theme");
+        String themeSetting = loadSettingPreference();
         ThemeManager.Theme theme = "DARK".equals(themeSetting) ? ThemeManager.Theme.DARK : ThemeManager.Theme.LIGHT;
         darkModeCheckBox.setSelected(ThemeManager.Theme.DARK.equals(theme));
 
@@ -159,10 +159,10 @@ public class SettingsPanel extends JPanel {
         }
     }
 
-    private void saveSettingPreference(String key, String value) {
+    private void saveSettingPreference(String value) {
         String filename = username + "_settings.dat";
         try (PrintWriter out = new PrintWriter(new FileWriter(filename, false))) {
-            out.println(key + "=" + value);
+            out.println("theme" + "=" + value);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this,
                     "Error saving settings",
@@ -171,12 +171,12 @@ public class SettingsPanel extends JPanel {
         }
     }
 
-    private String loadSettingPreference(String key) {
+    private String loadSettingPreference() {
         String filename = username + "_settings.dat";
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                if (line.startsWith(key + "=")) {
+                if (line.startsWith("theme" + "=")) {
                     return line.split("=")[1];
                 }
             }
