@@ -13,7 +13,6 @@ public class MainWindow extends JFrame {
         setTitle("Accountable - Main Window");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
         setLocationRelativeTo(null);
 
         JTabbedPane tabbedPane = new JTabbedPane();
@@ -24,16 +23,13 @@ public class MainWindow extends JFrame {
         SettingsPanel settingsPanel = new SettingsPanel(currentUsername);
         tabbedPane.addTab("Settings", settingsPanel);
 
-        add(tabbedPane, BorderLayout.CENTER);
+        // Set the layout of the content pane to BorderLayout
+        getContentPane().setLayout(new BorderLayout());
+
+        // Add the JTabbedPane to the CENTER of the content pane
+        getContentPane().add(tabbedPane, BorderLayout.CENTER);
 
         // Apply the theme based on the user's settings
         settingsPanel.loadAndApplyTheme();
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            LoginWindow loginWindow = new LoginWindow();
-            loginWindow.setVisible(true);
-        });
     }
 }
