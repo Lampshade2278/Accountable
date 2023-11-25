@@ -5,10 +5,10 @@ import java.awt.*;
 
 public class MainWindow extends JFrame {
 
-    private String username;
+    private String currentUsername;
 
     public MainWindow(String username) {
-        this.username = username;
+        this.currentUsername = username;
 
         setTitle("Accountable - Main Window");
         setSize(800, 600);
@@ -21,13 +21,13 @@ public class MainWindow extends JFrame {
         tabbedPane.addTab("Expenses", new ExpensePanel());
         tabbedPane.addTab("Income", new IncomePanel());
         tabbedPane.addTab("Reports", new ReportPanel());
-        tabbedPane.addTab("Settings", new SettingsPanel(username));
+        SettingsPanel settingsPanel = new SettingsPanel(currentUsername);
+        tabbedPane.addTab("Settings", settingsPanel);
 
         add(tabbedPane, BorderLayout.CENTER);
-    }
 
-    public String getCurrentUsername() {
-        return username;
+        // Apply the theme based on the user's settings
+        settingsPanel.loadAndApplyTheme();
     }
 
     public static void main(String[] args) {
