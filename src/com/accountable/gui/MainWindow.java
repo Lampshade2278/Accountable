@@ -20,7 +20,9 @@ public class MainWindow extends JFrame {
         tabbedPane.addTab("Expenses", new ExpensePanel());
         tabbedPane.addTab("Income", new IncomePanel());
         tabbedPane.addTab("Reports", new ReportPanel());
-        SettingsPanel settingsPanel = new SettingsPanel(currentUsername);
+
+        // Pass 'this' as the second argument to refer to the current instance of MainWindow
+        SettingsPanel settingsPanel = new SettingsPanel(currentUsername, this);
         tabbedPane.addTab("Settings", settingsPanel);
 
         // Set the layout of the content pane to BorderLayout

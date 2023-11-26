@@ -1,188 +1,201 @@
 package com.accountable.gui;
 
 import javax.swing.*;
-import javax.swing.plaf.ColorUIResource;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.io.*;
+import java.util.Map;
+
+
+import com.accountable.core.Authentication;
+import com.accountable.core.DataManager;
+import com.accountable.core.User;
 
 public class SettingsPanel extends JPanel {
 
-    private JCheckBox darkModeCheckBox;
-    private JButton saveSettingsButton;
-    private JButton deleteAccountButton;
-    private JButton changePasswordButton;
-    private JPasswordField currentPasswordField;
-    private JPasswordField newPasswordField;
-    private JPasswordField confirmNewPasswordField;
-    private String username;
+    private String currentUsername;
+    private JFrame parentFrame;
 
-    public SettingsPanel(String username) {
-        this.username = username;
-
-        setLayout(new BorderLayout());
-
-        // Create a panel for the theme settings
-        JPanel themeSettingsPanel = new JPanel(new BorderLayout());
-        JLabel themeLabel = new JLabel("Theme Settings", JLabel.CENTER);
-        themeSettingsPanel.add(themeLabel, BorderLayout.NORTH);
-
-        darkModeCheckBox = new JCheckBox("Enable Dark Mode");
-        themeSettingsPanel.add(darkModeCheckBox, BorderLayout.CENTER);
-
-        // Create a panel for the account management with GridBagLayout
-        JPanel accountManagementPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-
-        JLabel accountLabel = new JLabel("Account Management", JLabel.CENTER);
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        accountManagementPanel.add(accountLabel, gbc);
-
-        // Modify the "Delete Account" button size
-        deleteAccountButton = new JButton("Delete Account");
-        deleteAccountButton.setPreferredSize(new Dimension(160, 30)); // Set a larger button size
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.gridwidth = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL; // Fill the available horizontal space
-        gbc.insets = new Insets(10, 0, 0, 0); // Add top margin
-        accountManagementPanel.add(deleteAccountButton, gbc);
-
-        // Create a panel for "Change Password" with fields
-        JPanel changePasswordPanel = new JPanel(new BorderLayout());
-        JLabel changePasswordLabel = new JLabel("Change Password", JLabel.CENTER);
-        changePasswordPanel.add(changePasswordLabel, BorderLayout.NORTH);
-
-        currentPasswordField = new JPasswordField(20); // Adjust the field size as needed
-        newPasswordField = new JPasswordField(20);
-        confirmNewPasswordField = new JPasswordField(20);
-
-        JPanel passwordFieldsPanel = new JPanel(new GridLayout(3, 2, 0, 10)); // Add vertical spacing between fields
-        passwordFieldsPanel.add(new JLabel("Current Password:"));
-        passwordFieldsPanel.add(currentPasswordField);
-        passwordFieldsPanel.add(new JLabel("New Password:"));
-        passwordFieldsPanel.add(newPasswordField);
-        passwordFieldsPanel.add(new JLabel("Confirm New Password:"));
-        passwordFieldsPanel.add(confirmNewPasswordField);
-
-        changePasswordPanel.add(passwordFieldsPanel, BorderLayout.CENTER);
-
-        changePasswordButton = new JButton("Change Password");
-        changePasswordButton.addActionListener(this::changePassword);
-        changePasswordPanel.add(changePasswordButton, BorderLayout.SOUTH);
-
-        // Create a panel for future features (placeholders)
-        JPanel futureFeaturesPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints futureGbc = new GridBagConstraints();
-
-        JLabel futureLabel = new JLabel("Future Features (Coming Soon)", JLabel.CENTER);
-        futureGbc.gridx = 0;
-        futureGbc.gridy = 0;
-        futureGbc.gridwidth = 2;
-        futureFeaturesPanel.add(futureLabel, futureGbc);
-
-        // Placeholder buttons for future features (grayed out)
-        JButton sendNotificationsButton = new JButton("Send Notifications");
-        sendNotificationsButton.setEnabled(false); // Grayed out
-        futureGbc.gridx = 0;
-        futureGbc.gridy = 1;
-        futureGbc.gridwidth = 1;
-        futureFeaturesPanel.add(sendNotificationsButton, futureGbc);
-
-        JButton importExportButton = new JButton("Import/Export Bank Docs");
-        importExportButton.setEnabled(false); // Grayed out
-        futureGbc.gridx = 1;
-        futureGbc.gridy = 1;
-        futureGbc.gridwidth = 1;
-        futureFeaturesPanel.add(importExportButton, futureGbc);
-
-        // Add the sections to the main panel
-        add(themeSettingsPanel, BorderLayout.NORTH);
-        add(accountManagementPanel, BorderLayout.CENTER);
-        add(changePasswordPanel, BorderLayout.SOUTH); // Add "Change Password" panel
-        add(futureFeaturesPanel, BorderLayout.SOUTH); // Placeholder for future features
-
-        // Create a panel for the save button
-        JPanel saveButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        saveSettingsButton = new JButton("Save Settings");
-        saveSettingsButton.addActionListener(this::saveSettings);
-        saveButtonPanel.add(saveSettingsButton);
-        add(saveButtonPanel, BorderLayout.SOUTH);
-
-        // Customize the disabled button appearance
-        UIDefaults defaults = UIManager.getLookAndFeelDefaults();
-        defaults.put("Button.disabledText", new ColorUIResource(Color.GRAY));
-
-        loadAndApplyTheme();
+    public SettingsPanel(String username, JFrame parentFrame) {
+        this.currentUsername = username;
+        this.parentFrame = parentFrame;
+        initializeUI();
     }
 
-    private void saveSettings(ActionEvent e) {
-        ThemeManager.Theme theme = darkModeCheckBox.isSelected() ? ThemeManager.Theme.DARK : ThemeManager.Theme.LIGHT;
-        saveSettingPreference(theme.toString());
+    private void initializeUI() {
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        JFrame mainWindow = (JFrame) SwingUtilities.getWindowAncestor(this);
-        if (mainWindow != null) {
-            ThemeManager.applyTheme(mainWindow, theme);
+        // Theme settings panel
+        JPanel themePanel = createThemePanel();
+        add(themePanel);
+
+        // Password management panel
+        JPanel passwordPanel = createPasswordPanel();
+        add(passwordPanel);
+
+        // Account deletion panel
+        JPanel deleteAccountPanel = createDeleteAccountPanel();
+        add(deleteAccountPanel);
+
+        // Data management and bank link panel
+        JPanel dataManagementPanel = createDataManagementAndBankLinkPanel();
+        add(dataManagementPanel);
+
+        // Notification settings panel
+        JPanel notificationSettingsPanel = createNotificationSettingsPanel();
+        add(notificationSettingsPanel);
+
+        // Feedback panel
+        JPanel feedbackPanel = createFeedbackPanel();
+        add(feedbackPanel);
+    }
+
+    private JPanel createThemePanel() {
+        JPanel themePanel = new JPanel();
+        themePanel.setBorder(BorderFactory.createTitledBorder("Theme Settings"));
+
+        JRadioButton lightThemeButton = new JRadioButton("Light Theme");
+        JRadioButton darkThemeButton = new JRadioButton("Dark Theme");
+        ButtonGroup themeGroup = new ButtonGroup();
+        themeGroup.add(lightThemeButton);
+        themeGroup.add(darkThemeButton);
+
+        if (ThemeManager.getCurrentTheme() == ThemeManager.Theme.LIGHT) {
+            lightThemeButton.setSelected(true);
+        } else {
+            darkThemeButton.setSelected(true);
+        }
+
+        lightThemeButton.addActionListener(e -> ThemeManager.applyTheme(parentFrame, ThemeManager.Theme.LIGHT));
+        darkThemeButton.addActionListener(e -> ThemeManager.applyTheme(parentFrame, ThemeManager.Theme.DARK));
+
+        themePanel.add(lightThemeButton);
+        themePanel.add(darkThemeButton);
+
+        return themePanel;
+    }
+
+    private JPanel createPasswordPanel() {
+        JPanel passwordPanel = new JPanel(new GridLayout(4, 2));
+        passwordPanel.setBorder(BorderFactory.createTitledBorder("Password Management"));
+
+        JPasswordField currentPasswordField = new JPasswordField();
+        JPasswordField newPasswordField = new JPasswordField();
+        JPasswordField confirmPasswordField = new JPasswordField();
+        JButton changePasswordButton = new JButton("Change Password");
+
+        passwordPanel.add(new JLabel("Current Password:"));
+        passwordPanel.add(currentPasswordField);
+        passwordPanel.add(new JLabel("New Password:"));
+        passwordPanel.add(newPasswordField);
+        passwordPanel.add(new JLabel("Confirm New Password:"));
+        passwordPanel.add(confirmPasswordField);
+        passwordPanel.add(changePasswordButton);
+
+        changePasswordButton.addActionListener(e -> changePassword(
+                new String(currentPasswordField.getPassword()),
+                new String(newPasswordField.getPassword()),
+                new String(confirmPasswordField.getPassword())
+        ));
+
+        return passwordPanel;
+    }
+
+    private JPanel createDeleteAccountPanel() {
+        JPanel deleteAccountPanel = new JPanel();
+        deleteAccountPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+        deleteAccountPanel.setBorder(BorderFactory.createTitledBorder("Delete Account"));
+
+        JLabel warningLabel = new JLabel("<html><span style='color: red;'>Warning:</span> Deleting your account is irreversible!</html>");
+        deleteAccountPanel.add(warningLabel);
+
+        JTextField usernameField = new JTextField(20);
+        JButton deleteAccountButton = new JButton("Delete Account");
+
+        deleteAccountPanel.add(new JLabel("Enter Username:"));
+        deleteAccountPanel.add(usernameField);
+        deleteAccountPanel.add(deleteAccountButton);
+
+        deleteAccountButton.addActionListener(e -> deleteAccount(usernameField.getText()));
+
+        return deleteAccountPanel;
+    }
+
+    private JPanel createDataManagementAndBankLinkPanel() {
+        JPanel dataManagementPanel = new JPanel();
+        dataManagementPanel.setBorder(BorderFactory.createTitledBorder("Data Management & Bank Integration"));
+
+        JButton importDataButton = new JButton("Import Data");
+        JButton exportDataButton = new JButton("Export Data");
+        JButton linkBankButton = new JButton("Link to Bank");
+
+        importDataButton.setEnabled(false); // Disabled for future implementation
+        exportDataButton.setEnabled(false); // Disabled for future implementation
+        linkBankButton.setEnabled(false); // Disabled for future implementation
+
+        dataManagementPanel.add(importDataButton);
+        dataManagementPanel.add(exportDataButton);
+        dataManagementPanel.add(linkBankButton);
+
+        return dataManagementPanel;
+    }
+
+    private JPanel createNotificationSettingsPanel() {
+        JPanel notificationSettingsPanel = new JPanel();
+        notificationSettingsPanel.setBorder(BorderFactory.createTitledBorder("Notification Settings"));
+
+        JCheckBox emailNotificationsCheckBox = new JCheckBox("Email Notifications");
+        JCheckBox appNotificationsCheckBox = new JCheckBox("App Notifications");
+        emailNotificationsCheckBox.setEnabled(false); // Disabled for future implementation
+        appNotificationsCheckBox.setEnabled(false); // Disabled for future implementation
+
+        notificationSettingsPanel.add(emailNotificationsCheckBox);
+        notificationSettingsPanel.add(appNotificationsCheckBox);
+        return notificationSettingsPanel;
+    }
+
+    private JPanel createFeedbackPanel() {
+        JPanel feedbackPanel = new JPanel();
+        feedbackPanel.setBorder(BorderFactory.createTitledBorder("Send Feedback"));
+
+        JButton sendFeedbackButton = new JButton("Send Feedback");
+        sendFeedbackButton.setEnabled(false); // Disabled for future implementation
+
+        feedbackPanel.add(sendFeedbackButton);
+        return feedbackPanel;
+    }
+
+    private void deleteAccount(String enteredUsername) {
+        if (!enteredUsername.equals(currentUsername)) {
+            JOptionPane.showMessageDialog(this, "Username entered does not match. Account not deleted.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (DataManager.deleteUserAccount(currentUsername)) {
+            JOptionPane.showMessageDialog(this, "Account and associated data deleted successfully.");
+            logoutUser();
+        } else {
+            JOptionPane.showMessageDialog(this, "Error deleting account or associated data.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private void deleteAccount(ActionEvent e) {
-        int confirmDialogResult = JOptionPane.showConfirmDialog(this,
-                "Are you sure you want to delete your account?",
-                "Confirm Account Deletion", JOptionPane.YES_NO_OPTION);
-
-        if (confirmDialogResult == JOptionPane.YES_OPTION) {
-            // Perform account deletion logic here
-            // You can add code to delete user data, preferences, etc.
-            // You might want to show a confirmation message after successful deletion.
-            // Note: Implement proper user authentication and data handling for security.
+    private void changePassword(String currentPassword, String newPassword, String confirmPassword) {
+        if (!newPassword.equals(confirmPassword)) {
+            JOptionPane.showMessageDialog(this, "New passwords do not match.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (DataManager.changeUserPassword(currentUsername, currentPassword, newPassword)) {
+            JOptionPane.showMessageDialog(this, "Password successfully changed.", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, "Error updating password.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private void changePassword(ActionEvent e) {
-        // You can add code to open a dialog for password change
-        // Collect old password, new password, and confirm new password
-        // Perform password change logic here, and show appropriate messages.
-        // Note: Implement proper user authentication and password handling for security.
+    private void logoutUser() {
+        parentFrame.dispose();
+        new LoginWindow().setVisible(true);
     }
 
-    void loadAndApplyTheme() {
-        String themeSetting = loadSettingPreference();
-        ThemeManager.Theme theme = "DARK".equals(themeSetting) ? ThemeManager.Theme.DARK : ThemeManager.Theme.LIGHT;
-        darkModeCheckBox.setSelected(ThemeManager.Theme.DARK.equals(theme));
-
-        JFrame mainWindow = (JFrame) SwingUtilities.getWindowAncestor(this);
-        if (mainWindow != null) {
-            ThemeManager.applyTheme(mainWindow, theme);
-        }
-    }
-
-    private void saveSettingPreference(String value) {
-        String filename = username + "_settings.dat";
-        try (PrintWriter out = new PrintWriter(new FileWriter(filename, false))) {
-            out.println("theme" + "=" + value);
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this,
-                    "Error saving settings",
-                    "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        }
-    }
-
-    private String loadSettingPreference() {
-        String filename = username + "_settings.dat";
-        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.startsWith("theme" + "=")) {
-                    return line.split("=")[1];
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public void loadAndApplyTheme() {
+        ThemeManager.applyTheme(parentFrame, ThemeManager.getCurrentTheme());
     }
 }

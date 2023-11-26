@@ -13,6 +13,11 @@ public class ThemeManager {
 
     private static Theme currentTheme = Theme.LIGHT;
 
+    public static Theme getCurrentTheme() {
+        return currentTheme;
+    }
+
+
     public static void applyTheme(JFrame frame, Theme theme) {
         currentTheme = theme;
         applyThemeToComponent(frame.getContentPane(), theme);

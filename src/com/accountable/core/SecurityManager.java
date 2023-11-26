@@ -10,7 +10,7 @@ public class SecurityManager {
 
     public boolean authenticateUser(String username, String password) {
         for (User user : dataManager.getAllUsers()) {
-            if (user.getUsername().equals(username) && user.getPassword().equals(PasswordUtil.hashPassword(password))) {
+            if (user.getUsername().equals(username) && user.getPassword().equals(Authentication.hashPassword(password))) {
                 return true;
             }
         }
