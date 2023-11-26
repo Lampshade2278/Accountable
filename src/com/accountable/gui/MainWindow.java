@@ -7,8 +7,8 @@ public class MainWindow extends JFrame {
 
     private String currentUsername;
 
-    public MainWindow(String username) {
-        this.currentUsername = username;
+    public MainWindow() {
+        //this.currentUsername = username;
 
         setTitle("Accountable - Main Window");
         setSize(800, 600);

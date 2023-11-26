@@ -8,6 +8,12 @@ public class User {
         this.username = username;
         this.password = password; // Assuming password is already hashed
     }
+/*
+    public static boolean createUser(String username, String s) {
+    return false;
+    }
+*/
+
 
     // Getters
     public String getUsername() {

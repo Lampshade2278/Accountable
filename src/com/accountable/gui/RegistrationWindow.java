@@ -4,13 +4,6 @@ import com.accountable.core.Authentication;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 
 public class RegistrationWindow extends JFrame {
 
@@ -54,7 +47,7 @@ public class RegistrationWindow extends JFrame {
 
             // Open the MainWindow and pass the username
             SwingUtilities.invokeLater(() -> {
-                MainWindow mainWindow = new MainWindow(username);
+                MainWindow mainWindow = new MainWindow();
                 mainWindow.setVisible(true);
             });
         } else {
