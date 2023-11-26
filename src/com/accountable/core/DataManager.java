@@ -39,44 +39,6 @@ public class DataManager {
 
     public static void saveUser(User user) {
         File userFile = new File(USER_DATA_FOLDER + user.getUsername() + CREDENTIALS_SUFFIX);
-        File financeFile = new File(USER_DATA_FOLDER + user.getUsername() + FINANCIALS_SUFFIX);
-        File settingsFile = new File(USER_DATA_FOLDER + user.getUsername() + SETTINGS_SUFFIX);
-
-        // Ensure directory exists
-        if (!userFile.getParentFile().exists()) {
-            userFile.getParentFile().mkdirs();
-        }
-
-        // Write the encrypted user credentials
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(userFile, false))) {
-            String encryptedData = Base64.getEncoder().encodeToString((user.getUsername() + ":" + user.getPassword()).getBytes(StandardCharsets.UTF_8));
-            writer.write(encryptedData);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // Create the financials file if it doesn't exist
-        if (!financeFile.exists()) {
-            try {
-                financeFile.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        // Create the settings file if it doesn't exist
-        if (!settingsFile.exists()) {
-            try {
-                settingsFile.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-
-    private static void saveCredentials(User user) {
-        File userFile = new File(USER_DATA_FOLDER + user.getUsername() + CREDENTIALS_SUFFIX);
         if (!userFile.getParentFile().exists()) {
             userFile.getParentFile().mkdirs();
         }
@@ -84,20 +46,6 @@ public class DataManager {
             String encryptedData = Base64.getEncoder().encodeToString((user.getUsername() + ":" + user.getPassword()).getBytes(StandardCharsets.UTF_8));
             writer.write(encryptedData);
         } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void createEmptyFile(String filePath) {
-        try {
-            File file = new File(filePath);
-            if (file.createNewFile()) {
-                System.out.println("File created: " + file.getName());
-            } else {
-                System.out.println("File already exists.");
-            }
-        } catch (IOException e) {
-            System.out.println("An error occurred while creating the file: " + filePath);
             e.printStackTrace();
         }
     }

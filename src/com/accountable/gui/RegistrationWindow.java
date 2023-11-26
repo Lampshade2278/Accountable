@@ -5,6 +5,12 @@ import com.accountable.core.Authentication;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 
 public class RegistrationWindow extends JFrame {
 
@@ -30,24 +36,14 @@ public class RegistrationWindow extends JFrame {
 
         // Register button
         registerButton = new JButton("Register");
-        registerButton.addActionListener(this::registerUser);
+        registerButton.addActionListener(e -> registerUser(usernameField.getText(), new String(passwordField.getPassword())));
         add(registerButton);
 
         // Position the window in the center of the screen
         setLocationRelativeTo(null);
-
-        // Disable the register button initially
-        registerButton.setEnabled(false);
-
-        // Add document listeners to the username and password fields
-        usernameField.getDocument().addDocumentListener(new SimpleDocumentListener());
-        passwordField.getDocument().addDocumentListener(new SimpleDocumentListener());
     }
-
-    private void registerUser(ActionEvent e) {
-        String username = usernameField.getText();
-        String password = new String(passwordField.getPassword());
-
+    private void registerUser(String username, String password) {
+        // Use the signUp method from the Authentication class to register the user
         boolean isSignUpSuccessful = Authentication.signUp(username, password);
 
         if (isSignUpSuccessful) {
@@ -66,37 +62,5 @@ public class RegistrationWindow extends JFrame {
         }
     }
 
-    private class SimpleDocumentListener implements javax.swing.event.DocumentListener {
-        @Override
-        public void insertUpdate(javax.swing.event.DocumentEvent e) {
-            checkFields();
-        }
-
-        @Override
-        public void removeUpdate(javax.swing.event.DocumentEvent e) {
-            checkFields();
-        }
-
-        @Override
-        public void changedUpdate(javax.swing.event.DocumentEvent e) {
-            checkFields();
-        }
     }
 
-    private void checkFields() {
-        String username = usernameField.getText();
-        String password = new String(passwordField.getPassword());
-
-        boolean isUsernameFilled = !username.trim().isEmpty();
-        boolean isPasswordValid = isPasswordValid(password);
-
-        // Enable/disable the register button based on field conditions
-        registerButton.setEnabled(isUsernameFilled && isPasswordValid);
-    }
-
-    private boolean isPasswordValid(String password) {
-        // Check password conditions (1 number, 1 special character, 1 uppercase, 8 characters in length)
-        return password.matches(".*\\d.*") && password.matches(".*[!@#$%^&*()-_=+\\[\\]{}|;:'\",.<>/?].*")
-                && password.matches(".*[A-Z].*") && password.length() >= 8;
-    }
-}
