@@ -31,21 +31,7 @@ public class LoginWindow extends JFrame {
         loginButton = new JButton("Login");
         loginButton.addActionListener(this::login);
 
-        /*
-        registerButton = new JButton("Register");
-
-        registerButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                onRegisterClicked();
-            }
-        });
-        */
-
-
-
         buttonPanel.add(loginButton);
-        //buttonPanel.add(registerButton);
 
         add(inputPanel, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
@@ -62,29 +48,5 @@ public class LoginWindow extends JFrame {
         } else {
             JOptionPane.showMessageDialog(this, "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
         }
-    }
-
-
-    /*
-    // Method to handle registration logic
-    private void onRegisterClicked() {
-
-        RegistrationDialog registrationDialog = new RegistrationDialog(this);
-        registrationDialog.setVisible(true);
-
-        if (registrationDialog.isRegistrationSuccessful()) {
-            dispose();
-            MainWindow mainWindow = new MainWindow(registrationDialog.getRegisteredUsername());
-            mainWindow.setVisible(true);
-        }
-    }
-    */
-
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            LoginWindow loginWindow = new LoginWindow();
-            loginWindow.setVisible(true);
-        });
     }
 }
