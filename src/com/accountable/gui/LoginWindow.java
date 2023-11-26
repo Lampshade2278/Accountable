@@ -10,48 +10,52 @@ public class LoginWindow extends JFrame {
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JButton loginButton;
-    //private JButton registerButton;
 
     public LoginWindow() {
         setTitle("Login");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout(5, 5));
-        setSize(400, 200);
-        setLocationRelativeTo(null);
+        setLayout(new BorderLayout(10, 10));
 
-        JPanel inputPanel = new JPanel(new GridLayout(2, 2, 5, 5));
+        JPanel inputPanel = new JPanel(new GridLayout(2, 2, 20, 20));
+        inputPanel.setBorder(BorderFactory.createEmptyBorder(100, 50, 100, 50)); // Adjust for longer fields
+
+        // Increase the font size for labels and set them to bold
+        Font labelFont = new Font("Arial", Font.BOLD, 16);
+
+        JLabel usernameLabel = new JLabel("Username:");
+        usernameLabel.setFont(labelFont);
+        inputPanel.add(usernameLabel);
+
         usernameField = new JTextField();
-        passwordField = new JPasswordField();
-        inputPanel.add(new JLabel("   Username:"));
+        usernameField.setFont(labelFont); // Set the text field font to be consistent
+        usernameField.setPreferredSize(new Dimension(200, 30)); // Set the preferred size to make it longer
         inputPanel.add(usernameField);
-        inputPanel.add(new JLabel("   Password:"));
+
+        JLabel passwordLabel = new JLabel("Password:");
+        passwordLabel.setFont(labelFont);
+        inputPanel.add(passwordLabel);
+
+        passwordField = new JPasswordField();
+        passwordField.setFont(labelFont); // Set the text field font to be consistent
+        passwordField.setPreferredSize(new Dimension(200, 30)); // Set the preferred size to make it longer
         inputPanel.add(passwordField);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
         loginButton = new JButton("Login");
         loginButton.addActionListener(this::login);
+        loginButton.setFont(labelFont); // Use the same font as the labels
 
-        /*
-        registerButton = new JButton("Register");
-
-        registerButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                onRegisterClicked();
-            }
-        });
-        */
-
-
-
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.add(loginButton);
-        //buttonPanel.add(registerButton);
 
         add(inputPanel, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
+
+        pack();
+        setLocationRelativeTo(null);
     }
 
     private void login(ActionEvent e) {
+        // Login logic remains the same
         String username = usernameField.getText();
         String password = new String(passwordField.getPassword());
 
@@ -63,23 +67,6 @@ public class LoginWindow extends JFrame {
             JOptionPane.showMessageDialog(this, "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
         }
     }
-
-
-    /*
-    // Method to handle registration logic
-    private void onRegisterClicked() {
-
-        RegistrationDialog registrationDialog = new RegistrationDialog(this);
-        registrationDialog.setVisible(true);
-
-        if (registrationDialog.isRegistrationSuccessful()) {
-            dispose();
-            MainWindow mainWindow = new MainWindow(registrationDialog.getRegisteredUsername());
-            mainWindow.setVisible(true);
-        }
-    }
-    */
-
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
