@@ -1,6 +1,6 @@
 package com.accountable.test;
 
-import com.accountable.core.PasswordUtil;
+import com.accountable.core.Authentication;
 import com.accountable.core.User;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -13,7 +13,7 @@ public class UserTest {
         assertNotNull(user, "User should not be null");
         assertEquals("testUser", user.getUsername(), "Username should match");
         // Updated to check the hashed password instead of plain text
-        assertTrue(PasswordUtil.hashPassword("password123").equals(user.getPassword()), "Hashed password should match");
+        assertTrue(Authentication.hashPassword("password123").equals(user.getPassword()), "Hashed password should match");
     }
 
     @Test

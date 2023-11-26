@@ -5,15 +5,14 @@ import java.awt.*;
 
 public class MainWindow extends JFrame {
 
-    private String username;
+    private String currentUsername;
 
     public MainWindow(String username) {
-        this.username = username;
+        this.currentUsername = username;
 
         setTitle("Accountable - Main Window");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
         setLocationRelativeTo(null);
 
         JTabbedPane tabbedPane = new JTabbedPane();
@@ -21,19 +20,18 @@ public class MainWindow extends JFrame {
         tabbedPane.addTab("Expenses", new ExpensePanel());
         tabbedPane.addTab("Income", new IncomePanel());
         tabbedPane.addTab("Reports", new ReportPanel());
-        tabbedPane.addTab("Settings", new SettingsPanel(username));
 
-        add(tabbedPane, BorderLayout.CENTER);
-    }
+        // Pass 'this' as the second argument to refer to the current instance of MainWindow
+        SettingsPanel settingsPanel = new SettingsPanel(currentUsername, this);
+        tabbedPane.addTab("Settings", settingsPanel);
 
-    public String getCurrentUsername() {
-        return username;
-    }
+        // Set the layout of the content pane to BorderLayout
+        getContentPane().setLayout(new BorderLayout());
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            LoginWindow loginWindow = new LoginWindow();
-            loginWindow.setVisible(true);
-        });
+        // Add the JTabbedPane to the CENTER of the content pane
+        getContentPane().add(tabbedPane, BorderLayout.CENTER);
+
+        // Apply the theme based on the user's settings
+        settingsPanel.loadAndApplyTheme();
     }
 }

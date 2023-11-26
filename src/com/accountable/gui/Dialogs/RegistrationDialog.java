@@ -1,3 +1,4 @@
+/*
 package com.accountable.gui.Dialogs;
 
 import com.accountable.core.User;
@@ -65,3 +66,4 @@ public class RegistrationDialog extends JDialog {
         return registeredUsername;
     }
 }
+*/
