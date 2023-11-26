@@ -1,5 +1,5 @@
 package com.accountable.gui;
-//test
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -17,7 +17,7 @@ public class ApplicationLauncher {
         launchWindow.setSize(300, 200);
 
         // Logo label (replace with actual logo path)
-        JLabel logoLabel = new JLabel(new ImageIcon("path/to/logo.png"));
+        JLabel logoLabel = new JLabel(new ImageIcon("logo_accountable.png"));
         launchWindow.add(logoLabel);
         // ...[previous code]...
 
