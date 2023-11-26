@@ -1,4 +1,3 @@
-/*
 package com.accountable.core;
 
 import java.text.SimpleDateFormat;
@@ -20,4 +19,3 @@ public class Utilities {
 
     // Other utility methods can be added here, such as number formatting, data conversion, etc.
 }
-*/

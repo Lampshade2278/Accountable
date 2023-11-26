@@ -1,9 +1,9 @@
 package com.accountable.gui.Dialogs;
 
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 // Dialog for entering the projected monthly income.
 public class ProjectedIncomeDialog extends JDialog {
@@ -23,55 +23,33 @@ public class ProjectedIncomeDialog extends JDialog {
     private void initComponents() {
         setTitle("Set Projected Monthly Income");
         setLayout(new BorderLayout());
-        setSize(600, 180); // Increased the height to accommodate the subtitle
+        setSize(300, 120);
         setLocationRelativeTo(getOwner());
 
-        // Create a panel with a GridBagLayout to arrange labels and text fields
-        JPanel panel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.anchor = GridBagConstraints.WEST;
-
-        // Add Income Title label and text field
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        panel.add(new JLabel("Income Title (i.e. Your Occupation):"), gbc);
-
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        titleField = new JTextField(10);
-        panel.add(titleField, gbc);
-
-        // Add Monthly Income label and text field
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        panel.add(new JLabel("Amount:"), gbc);
-
-        gbc.gridx = 1;
-        gbc.gridy = 1;
+        // Create a panel with a GridLayout to arrange labels and text fields
+        JPanel panel = new JPanel(new GridLayout(2, 2));
+        panel.add(new JLabel("Monthly Income:"));
         incomeField = new JTextField(10);
-        incomeField.setText("$"); // Set initial text to "$"
-        panel.add(incomeField, gbc);
+        panel.add(incomeField);
 
-        // Create a titled border with a longer subtitle using HTML for line break
-        String subtitle = "<html>This is an estimate of how much income you expect to earn by the end of each month</html>";
-        TitledBorder titledBorder = BorderFactory.createTitledBorder(subtitle);
-        titledBorder.setTitleFont(new Font("Arial", Font.PLAIN, 11));
-        titledBorder.setTitleJustification(TitledBorder.CENTER);
-        titledBorder.setTitlePosition(TitledBorder.TOP);
+        panel.add(new JLabel("Income Title:"));
+        titleField = new JTextField(10);
+        panel.add(titleField);
 
-        // Add the panel to the center of the dialog with the titled border
-        panel.setBorder(titledBorder);
+        // Add the panel to the center of the dialog
         add(panel, BorderLayout.CENTER);
 
-        // Initialize the OK button and add its action listener using lambda expression
+        // Initialize the OK button and add its action listener
         okButton = new JButton("OK");
-        okButton.addActionListener(e -> onOk());
-
+        okButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                onOk();
+            }
+        });
         // Create a panel for the button to align it properly
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.add(okButton);
-
         // Add the button panel to the bottom of the dialog
         add(buttonPanel, BorderLayout.SOUTH);
     }
@@ -80,7 +58,7 @@ public class ProjectedIncomeDialog extends JDialog {
     private void onOk() {
         try {
             // Parse the income and check the title
-            projectedIncome = Double.parseDouble(incomeField.getText().substring(1)); // Remove "$" before parsing
+            projectedIncome = Double.parseDouble(incomeField.getText());
             incomeTitle = titleField.getText();
             if (incomeTitle.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Please enter a title for your income.", "Input Error", JOptionPane.ERROR_MESSAGE);
