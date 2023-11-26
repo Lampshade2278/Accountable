@@ -1,3 +1,4 @@
+/*
 package com.accountable.core;
 
 import javax.swing.*;
@@ -60,3 +61,4 @@ public class ThemeManager {
         });
     }
 }
+*/
