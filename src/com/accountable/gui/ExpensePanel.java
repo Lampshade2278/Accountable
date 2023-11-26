@@ -1,7 +1,9 @@
 package com.accountable.gui;
-
 import com.accountable.CategoryUpdateListener;
 import com.accountable.core.Transaction;
+import com.accountable.util.NonEditableTableModel;
+
+import javax.swing.table.DefaultTableModel;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -9,12 +11,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 public class ExpensePanel extends JPanel implements CategoryUpdateListener {
 
     private JTextField expenseNameField;
     private JTextField expenseAmountField;
     private JButton addExpenseButton;
+    private JButton deleteExpenseButton; // Button to delete selected expense
     private JTable expenseTable;
     private DefaultTableModel expenseModel;
 
@@ -54,16 +58,28 @@ public class ExpensePanel extends JPanel implements CategoryUpdateListener {
 
         // Table to display expenses with the new "Spending Category" column
         String[] columnNames = {"Expense Name", "Amount", "Spending Category", "Date"};
-        expenseModel = new DefaultTableModel(columnNames, 0);
+        expenseModel = new NonEditableTableModel(columnNames, 0); // Use NonEditableTableModel
         expenseTable = new JTable(expenseModel);
+        //expenseTable.getTableHeader().setReorderingAllowed(false); // Disable column reordering
         add(new JScrollPane(expenseTable), BorderLayout.CENTER);
 
+        // Add a delete button
+        deleteExpenseButton = new JButton("Delete Expense");
+        deleteExpenseButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                deleteExpense();
+            }
+        });
+        expenseManagementPanel.add(deleteExpenseButton);
         add(expenseManagementPanel, BorderLayout.SOUTH);
+
+
     }
 
     // Call this method to update the categories from the Budget tab
-    public void updateCategoryComboBox(String[] categories) {
-        expenseCategoryComboBox.setModel(new DefaultComboBoxModel<>(categories));
+    public void updateCategoryComboBox(List<String> categories) {
+        expenseCategoryComboBox.setModel(new DefaultComboBoxModel<>(categories.toArray(new String[0])));
     }
 
     private void addExpense() {
@@ -91,15 +107,24 @@ public class ExpensePanel extends JPanel implements CategoryUpdateListener {
                 "Expense Added: " + expenseName,
                 "Expense Added", JOptionPane.INFORMATION_MESSAGE);
     }
+    private void deleteExpense() {
+        int selectedRow = expenseTable.getSelectedRow();
+        if (selectedRow != -1) {
+            // Remove the selected row from the table model
+            expenseModel.removeRow(selectedRow);
+            JOptionPane.showMessageDialog(ExpensePanel.this,
+                    "Expense Deleted",
+                    "Expense Deleted", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(ExpensePanel.this,
+                    "Please select an expense to delete",
+                    "No Expense Selected", JOptionPane.WARNING_MESSAGE);
+        }
+    }
 
     // Implementation of the CategoryUpdateListener interface
-    //@Override
-    public void updateCategories(String[] categories) {
-        // Update the combo box with the new categories
-        expenseCategoryComboBox.setModel(new DefaultComboBoxModel<>(categories));
-        // Optionally select the first item by default
-        if (categories.length > 0) {
-            expenseCategoryComboBox.setSelectedIndex(0);
-        }
+    @Override
+    public void updateCategories(List<String> categories) {
+        updateCategoryComboBox(categories);
     }
 }

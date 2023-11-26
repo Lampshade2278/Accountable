@@ -15,9 +15,16 @@ public class MainWindow extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
+        // Create instances of BudgetPanel and ExpensePanel
+        BudgetPanel budgetPanel = new BudgetPanel();
+        ExpensePanel expensePanel = new ExpensePanel();
+
+        // Add ExpensePanel as a listener to BudgetPanel
+        budgetPanel.addCategoryUpdateListener(expensePanel);
+
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.addTab("Budget", new BudgetPanel());
-        tabbedPane.addTab("Expenses", new ExpensePanel());
+        tabbedPane.addTab("Budget", budgetPanel);
+        tabbedPane.addTab("Expenses", expensePanel);
         tabbedPane.addTab("Income", new IncomePanel());
         tabbedPane.addTab("Reports", new ReportPanel());
 
@@ -33,5 +40,12 @@ public class MainWindow extends JFrame {
 
         // Apply the theme based on the user's settings
         settingsPanel.loadAndApplyTheme();
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            LoginWindow loginWindow = new LoginWindow();
+            loginWindow.setVisible(true);
+        });
     }
 }
