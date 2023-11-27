@@ -79,10 +79,17 @@ public class ExpensePanel extends JPanel implements CategoryUpdateListener {
         String expenseName = expenseNameField.getText();
         String expenseAmount = expenseAmountField.getText();
         String spendingCategory = (String) expenseCategoryComboBox.getSelectedItem();
+        // Check if spending category is blank
+        if (spendingCategory == null || spendingCategory.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(ExpensePanel.this,
+                    "Please select a spending category or create one in the Budget section first.",
+                    "Invalid Spending Category", JOptionPane.WARNING_MESSAGE);
+            return; // Stop further processing
+        }
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
         Transaction newExpense = new Transaction(expenseName, Double.parseDouble(expenseAmount), new Date(), true);
-        double budget = 100.00; // Example budget value (you should get it from somewhere)
+        double budget = 100.00; // Need to grab category budget from budgetPanel
 
         // Add new expense to the table model including the spending category and progress information
         Progress progress = new Progress(budget, calculateRemainingBudget(newExpense, budget));
@@ -124,8 +131,8 @@ public class ExpensePanel extends JPanel implements CategoryUpdateListener {
     public void updateBudgetCategories(List<String> updatedCategories, List<Double> updatedBudgets) {
         updateCategoryComboBox(updatedCategories);
 
-        // TODO: Use the updated budget information in your ExpensePanel
-        // For example, you can access the budget for the first category as follows:
+        // TODO: Use the updated budget information in the ExpensePanel
+        // For example, access the budget for the first category as follows:
         Double budgetForFirstCategory = updatedBudgets.get(0);
         System.out.println("Budget for the first category: " + budgetForFirstCategory);
     }
