@@ -1,10 +1,6 @@
-package com.accountable.gui;
-
+package com.accountable.gui;// BudgetPanel.java
 import com.accountable.CategoryUpdateListener;
 import com.accountable.core.Transaction;
-
-import com.accountable.util.NonEditableTableModel;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -14,20 +10,17 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class BudgetPanel extends JPanel {
+public class BudgetPanel extends JPanel implements CategoryUpdateListener {
 
     private JTextField categoryNameField;
     private JTextField categoryAmountField;
     private JButton addCategoryButton;
-
-    private JButton deleteCategoryButton; // Button to delete selected category
-
+    private JButton deleteCategoryButton;
     private JTable categoryTable;
     private DefaultTableModel categoryModel;
 
-    private JComboBox<String> expenseCategoryComboBox; // ComboBox for spending categories
+    private JComboBox<String> expenseCategoryComboBox;
 
-    // List to hold category update listeners
     private List<CategoryUpdateListener> categoryUpdateListeners = new ArrayList<>();
 
     public BudgetPanel() {
@@ -36,9 +29,8 @@ public class BudgetPanel extends JPanel {
         JLabel headerLabel = new JLabel("Budget", JLabel.CENTER);
         add(headerLabel, BorderLayout.NORTH);
 
-        // Panel to add new expenses
         JPanel budgetManagementPanel = new JPanel();
-        budgetManagementPanel.setLayout(new GridLayout(0, 2)); // 0 rows, 2 columns
+        budgetManagementPanel.setLayout(new GridLayout(0, 2));
 
         budgetManagementPanel.add(new JLabel("Category Name:"));
         categoryNameField = new JTextField(20);
@@ -57,13 +49,11 @@ public class BudgetPanel extends JPanel {
         });
         budgetManagementPanel.add(addCategoryButton);
 
-        // Table to display budget categories
         String[] columnNames = {"Category Name", "Amount Allocated"};
-        categoryModel = new NonEditableTableModel(columnNames, 0);
+        categoryModel = new DefaultTableModel(columnNames, 0);
         categoryTable = new JTable(categoryModel);
         add(new JScrollPane(categoryTable), BorderLayout.CENTER);
 
-        // Add a delete button
         deleteCategoryButton = new JButton("Delete Category");
         deleteCategoryButton.addActionListener(new ActionListener() {
             @Override
@@ -83,16 +73,14 @@ public class BudgetPanel extends JPanel {
         // Assuming you have validation in place for categoryAmount and spendingCategory
         Transaction newExpense = new Transaction(categoryName, Double.parseDouble(categoryAmount), new Date(), true);
 
-        // Add new category to the table model including the spending category
         categoryModel.addRow(new Object[]{
                 newExpense.getDescription(),
                 String.format("$%.2f", newExpense.getAmount()),
         });
 
-        // Notify listeners about the updated categories
         notifyListeners();
+        notifyBudgetListeners();
 
-        // Clear the input fields after adding the category
         categoryNameField.setText("");
         categoryAmountField.setText("");
 
@@ -103,9 +91,9 @@ public class BudgetPanel extends JPanel {
     private void deleteCategory() {
         int selectedRow = categoryTable.getSelectedRow();
         if (selectedRow != -1) {
-            // Remove the selected row from the table model
             categoryModel.removeRow(selectedRow);
-            notifyListeners(); // Notify listeners about the updated categories after deletion
+            notifyListeners();
+            notifyBudgetListeners();
             JOptionPane.showMessageDialog(BudgetPanel.this,
                     "Category Deleted",
                     "Category Deleted", JOptionPane.INFORMATION_MESSAGE);
@@ -116,19 +104,36 @@ public class BudgetPanel extends JPanel {
         }
     }
 
-    // Method to add a listener to the list
     public void addCategoryUpdateListener(CategoryUpdateListener listener) {
         categoryUpdateListeners.add(listener);
     }
 
-    // Method to notify all listeners about category updates
     private void notifyListeners() {
         for (CategoryUpdateListener listener : categoryUpdateListeners) {
             listener.updateCategories(List.of(getCategoryNames()));
         }
     }
 
-    // Method to get category names from the table model
+    // Update this method to return the category budgets as a list
+    private List<Double> getCategoryBudgets() {
+        int rowCount = categoryModel.getRowCount();
+        List<Double> categoryBudgets = new ArrayList<>();
+        for (int i = 0; i < rowCount; i++) {
+            String amountString = (String) categoryModel.getValueAt(i, 1);
+            double amount = Double.parseDouble(amountString.substring(1));
+            categoryBudgets.add(amount);
+        }
+        return categoryBudgets;
+    }
+    // Method to notify all listeners about budget updates
+    private void notifyBudgetListeners() {
+        List<String> categoryNames = List.of(getCategoryNames());
+        List<Double> budgets = getCategoryBudgets();
+        for (CategoryUpdateListener listener : categoryUpdateListeners) {
+            listener.updateBudgetCategories(categoryNames, budgets);
+        }
+    }
+
     private String[] getCategoryNames() {
         int rowCount = categoryModel.getRowCount();
         String[] categoryNames = new String[rowCount];
@@ -137,4 +142,15 @@ public class BudgetPanel extends JPanel {
         }
         return categoryNames;
     }
+
+    @Override
+    public void updateCategories(List<String> updatedCategories) {
+        // Implement this method if needed
+    }
+
+    @Override
+    public void updateBudgetCategories(List<String> updatedCategories, List<Double> updatedBudgets) {
+        // Implement this method to handle budget updates
+    }
 }
+
