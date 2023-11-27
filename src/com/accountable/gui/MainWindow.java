@@ -5,10 +5,19 @@ import java.awt.*;
 
 public class MainWindow extends JFrame {
 
+    private IncomePanel incomePanel;
+    private BudgetPanel budgetPanel;
+
     private String currentUsername;
 
     public MainWindow(String username) {
         this.currentUsername = username;
+
+        incomePanel = new IncomePanel();
+        budgetPanel = new BudgetPanel();
+
+        // Set the BudgetPanel instance to the IncomePanel
+        incomePanel.setBudgetPanel(budgetPanel);
 
         setTitle("Accountable - Main Window");
         setSize(800, 600);

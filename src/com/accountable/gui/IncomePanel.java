@@ -16,7 +16,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class IncomePanel extends JPanel {
+    private BudgetPanel budgetPanel;
     private JTextField incomeAmountField;
+    private double predictedIncome = 0.0;
     private JLabel incomeAmountDisplay;
     private JLabel incomeDateDisplay;
     private YearMonth currentMonth;
@@ -133,6 +135,45 @@ public class IncomePanel extends JPanel {
         button.setContentAreaFilled(false);
         button.setFont(new Font("Arial", Font.PLAIN, 16));
     }
+
+    // Method to be called when the user submits their income (e.g., pressing an 'Enter' button)
+    public void onIncomeSubmit() {
+        // Parse the income from the incomeField and store it in the predictedIncome variable
+        try {
+            predictedIncome = Double.parseDouble(incomeAmountField.getText());
+            // Validate that the income is a positive number
+            if (predictedIncome < 0) {
+                throw new NumberFormatException("Income cannot be negative.");
+            }
+            // Ensure budgetPanel is not null and then pass the predictedIncome to it
+            if (budgetPanel != null) {
+                budgetPanel.setPredictedIncome(predictedIncome);
+            } else {
+                // Handle the case where budgetPanel has not been initialized or set
+                JOptionPane.showMessageDialog(this, "Budget panel is not initialized.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (NumberFormatException e) {
+            // Handle invalid input (e.g., not a number)
+            JOptionPane.showMessageDialog(this, "Please enter a valid income amount.", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+        }
+
+        if (budgetPanel != null) {
+            budgetPanel.setPredictedIncome(predictedIncome);
+            budgetPanel.recalculateAndDisplayAllocation(); // Add this line to update the budget panel
+        }
+
+    }
+
+    // Setter for budgetPanel to be called from outside, such as from the main application frame
+    public void setBudgetPanel(BudgetPanel budgetPanel) {
+        this.budgetPanel = budgetPanel;
+    }
+
+    // Getter method for predictedIncome
+    public double getPredictedIncome() {
+        return predictedIncome;
+    }
+
 
     // Main method for testing
     public static void main(String[] args) {

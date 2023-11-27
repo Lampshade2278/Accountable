@@ -12,6 +12,11 @@ import java.util.List;
 
 public class BudgetPanel extends JPanel implements CategoryUpdateListener {
 
+    // Class variable to keep track of the total allocated amount.
+    private static double totalAllocated = 0.0;
+    private static double predictedIncome = 0.0;
+    // You need a JLabel to show the allocation message, let's call it 'allocationMessageLabel'
+    private static JLabel allocationMessageLabel;
     private JTextField categoryNameField;
     private JTextField categoryAmountField;
     private JButton addCategoryButton;
@@ -64,6 +69,9 @@ public class BudgetPanel extends JPanel implements CategoryUpdateListener {
         budgetManagementPanel.add(deleteCategoryButton);
 
         add(budgetManagementPanel, BorderLayout.SOUTH);
+
+        initializeAllocationMessage(); // Call this method to initialize the label
+
     }
 
     private void addBudget() {
@@ -86,6 +94,7 @@ public class BudgetPanel extends JPanel implements CategoryUpdateListener {
 
         JOptionPane.showMessageDialog(BudgetPanel.this,
                 "Category Added: " + categoryName);
+        recalculateAndDisplayAllocation(); // Add this line after the category is successfully added
     }
 
     private void deleteCategory() {
@@ -94,6 +103,7 @@ public class BudgetPanel extends JPanel implements CategoryUpdateListener {
             categoryModel.removeRow(selectedRow);
             notifyListeners();
             notifyBudgetListeners();
+            recalculateAndDisplayAllocation(); // Add this line after the category is successfully deleted
             JOptionPane.showMessageDialog(BudgetPanel.this,
                     "Category Deleted",
                     "Category Deleted", JOptionPane.INFORMATION_MESSAGE);
@@ -152,5 +162,54 @@ public class BudgetPanel extends JPanel implements CategoryUpdateListener {
     public void updateBudgetCategories(List<String> updatedCategories, List<Double> updatedBudgets) {
         // Implement this method to handle budget updates
     }
+
+
+    // Remove the static keyword to make this an instance method
+    public void initializeAllocationMessage() {
+        allocationMessageLabel = new JLabel("$0.00 / $0.00 of this month's income allocated");
+        this.add(allocationMessageLabel, BorderLayout.NORTH); // Add the label to the panel
+        // Make sure this does not conflict with other components added to the BorderLayout.NORTH
+    }
+
+    // Update this method to include the new label text with the remaining amount.
+    private void updateAllocationMessage() {
+        double amountLeft = predictedIncome - totalAllocated;
+        allocationMessageLabel.setText(String.format("$%.2f / $%.2f of this month's income allocated, $%.2f left",
+                totalAllocated, predictedIncome, amountLeft));
+    }
+
+    // Change this to an instance method as well
+    public void setPredictedIncome(double income) {
+        predictedIncome = income;
+        totalAllocated = calculateTotalAllocated(); // Calculate the total allocated based on the table data
+        updateAllocationMessage();
+    }
+
+    // Call this method whenever a new category is added or the income is updated.
+    public void recalculateAndDisplayAllocation() {
+        totalAllocated = calculateTotalAllocated(); // Sum up all the amounts allocated in the categories
+        updateAllocationMessage(); // Update the label with the new total
+    }
+
+    private double calculateTotalAllocated() {
+        double total = 0.0;
+        for (int i = 0; i < categoryModel.getRowCount(); i++) {
+            String amountStr = (String) categoryModel.getValueAt(i, 1);
+            total += Double.parseDouble(amountStr.replace("$", ""));
+        }
+        return total;
+    }
+
+
+    // Method to be called when the user allocates money to a category
+    public void onCategoryAllocation(double allocation) {
+        // Add the allocation to the totalAllocated
+        totalAllocated += allocation;
+        // Update the allocation message
+        updateAllocationMessage();
+    }
+
+
+
 }
 
