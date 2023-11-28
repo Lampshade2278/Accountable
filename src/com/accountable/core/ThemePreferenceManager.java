@@ -1,3 +1,4 @@
+/*
 package com.accountable.core;
 
 import java.util.prefs.Preferences;
@@ -14,3 +15,4 @@ public class ThemePreferenceManager {
         return prefs.getBoolean(THEME_PREF_KEY, false); // Default to light mode
     }
 }
+*/
