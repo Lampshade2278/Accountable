@@ -1,98 +1,99 @@
 package com.accountable.core;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
-import static com.accountable.core.Authentication.authenticate;
-import static com.accountable.core.Authentication.hashPassword;
+import javax.swing.*;
+import java.io.*;
+import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 
 public class DataManager {
     private static final String USER_DATA_FOLDER = "user_data/";
     private static final String CREDENTIALS_SUFFIX = "_credentials.dat";
-    private static final String FINANCIALS_SUFFIX = "_financials.dat";
-    private static final String SETTINGS_SUFFIX = "_settings.dat";
+    private static final String CATEGORIES_SUFFIX = "_categories.json";
+    private static final String EXPENSES_SUFFIX = "_expenses.json";
 
-    public DataManager() {
-        new File(USER_DATA_FOLDER).mkdirs();
+    private static final String TRANSACTIONS_SUFFIX = "_transactions.json";
+
+    // Method to retrieve all transactions for all users
+    public static List<Transaction> getAllTransactions() {
+        List<Transaction> allTransactions = new ArrayList<>();
+        List<User> users = getAllUsers();
+
+        for (User user : users) {
+            List<Transaction> userTransactions = loadUserTransactions(user.getUsername());
+            allTransactions.addAll(userTransactions);
+        }
+
+        return allTransactions;
     }
 
-    public static User loadUser(String username) {
-        File userFile = new File(USER_DATA_FOLDER + username + CREDENTIALS_SUFFIX);
-        if (!userFile.exists()) return null;
-        try (BufferedReader reader = new BufferedReader(new FileReader(userFile))) {
-            String line = reader.readLine();
-            if (line != null) {
-                String decryptedData = new String(Base64.getDecoder().decode(line), StandardCharsets.UTF_8);
-                String[] userData = decryptedData.split(":");
-                if (userData.length >= 2) {
-                    return new User(userData[0], userData[1]);
-                } else {
-                    System.err.println("Invalid user data format for: " + username);
-                }
-            }
+    // Method to load transactions for a specific user
+    private static List<Transaction> loadUserTransactions(String username) {
+        try {
+            String json = new String(Files.readAllBytes(Paths.get(USER_DATA_FOLDER + username + TRANSACTIONS_SUFFIX)));
+            Type listType = new TypeToken<List<Transaction>>(){}.getType();
+            return new Gson().fromJson(json, listType);
         } catch (IOException e) {
             e.printStackTrace();
+            return new ArrayList<>();
         }
-        return null;
     }
 
+    // Method to save user credentials
     public static void saveUser(User user) {
-        File userFile = new File(USER_DATA_FOLDER + user.getUsername() + CREDENTIALS_SUFFIX);
-        if (!userFile.getParentFile().exists()) {
-            userFile.getParentFile().mkdirs();
-        }
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(userFile, false))) {
-            String encryptedData = Base64.getEncoder().encodeToString((user.getUsername() + ":" + user.getPassword()).getBytes(StandardCharsets.UTF_8));
-            writer.write(encryptedData);
+        try {
+            String json = new Gson().toJson(user);
+            Path path = Paths.get(USER_DATA_FOLDER + user.getUsername() + CREDENTIALS_SUFFIX);
+            Files.createDirectories(path.getParent()); // Ensure the directory exists
+            Files.write(path, json.getBytes(StandardCharsets.UTF_8));
+            System.out.println("User saved to: " + path.toString()); // Debug log
         } catch (IOException e) {
+            System.err.println("Failed to save user: " + e.getMessage()); // More detailed error logging
+            JOptionPane.showMessageDialog(null, "Failed to save user: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
+        }
+    }
+
+
+    // Method to load a user
+    public static User loadUser(String username) {
+        try {
+            Path path = Paths.get(USER_DATA_FOLDER + username + CREDENTIALS_SUFFIX);
+            String json = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+            System.out.println("User loaded from: " + path.toString()); // Debug log
+            return new Gson().fromJson(json, User.class);
+        } catch (IOException e) {
+            System.err.println("Failed to load user: " + e.getMessage()); // More detailed error logging
+            return null;
         }
     }
 
     public static boolean changeUserPassword(String username, String oldPassword, String newPassword) {
-        // Authenticate the user with the old password
-        if (!authenticate(username, oldPassword)) {
-            return false;
+        // Fetch the user
+        User user = loadUser(username);
+        if (user == null) {
+            return false; // User not found
         }
-        String hashedNewPassword = hashPassword(newPassword);
-        return updateUserPassword(username, hashedNewPassword);
-    }
 
-    public static boolean updateUserPassword(String username, String newHashedPassword) {
-        File userFile = new File(USER_DATA_FOLDER + username + CREDENTIALS_SUFFIX);
-        if (!userFile.exists()) {
-            return false;
+        // Check if the old password matches
+        if (!user.getPassword().equals(Authentication.hashPassword(oldPassword))) {
+            return false; // Old password does not match
         }
-        try {
-            String updatedCredentials = username + ":" + newHashedPassword;
-            String encryptedData = Base64.getEncoder().encodeToString(updatedCredentials.getBytes(StandardCharsets.UTF_8));
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(userFile, false))) {
-                writer.write(encryptedData);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
+
+        // Update the user's password
+        user.setPassword(Authentication.hashPassword(newPassword));
+        saveUser(user); // Save the updated user
         return true;
     }
 
-    public static boolean deleteUserAccount(String username) {
-        String[] filesToDelete = {
-                USER_DATA_FOLDER + username + CREDENTIALS_SUFFIX,
-                USER_DATA_FOLDER + username + FINANCIALS_SUFFIX,
-                USER_DATA_FOLDER + username + SETTINGS_SUFFIX
-        };
-        boolean allFilesDeleted = true;
-        for (String filename : filesToDelete) {
-            File file = new File(filename);
-            if (file.exists() && !file.delete()) {
-                allFilesDeleted = false;
-            }
-        }
-        return allFilesDeleted;
-    }
 
+    // Method to get all users
     public static List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
         File folder = new File(USER_DATA_FOLDER);
@@ -111,47 +112,63 @@ public class DataManager {
         return users;
     }
 
-    public static List<Transaction> getAllTransactions() {
-        List<Transaction> allTransactions = new ArrayList<>();
-        List<User> users = getAllUsers();
-        for (User user : users) {
-            allTransactions.addAll(getUserFinances(user.getUsername()));
-        }
-        return allTransactions;
-    }
-
-    private static List<Transaction> getUserFinances(String username) {
-        File financeFile = new File(USER_DATA_FOLDER + username + FINANCIALS_SUFFIX);
-        List<Transaction> transactions = new ArrayList<>();
-        // Add logic to read transactions from the financeFile
-        return transactions;
-    }
-
-    public static Settings loadUserSettings(String username) {
-        File settingsFile = new File(USER_DATA_FOLDER + username + SETTINGS_SUFFIX);
-        if (!settingsFile.exists()) return new Settings(); // Assuming Settings is a class that can be instantiated
-
-        Map<String, String> settingsMap = new HashMap<>();
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(settingsFile))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] keyValue = line.split("=");
-                if (keyValue.length == 2) {
-                    settingsMap.put(keyValue[0], keyValue[1]);
-                }
-            }
+    // Method to save categories
+    public static void saveCategories(String username, List<Category> categories) {
+        Gson gson = new Gson();
+        String json = gson.toJson(categories);
+        try {
+            Files.write(Paths.get(USER_DATA_FOLDER + username + CATEGORIES_SUFFIX), json.getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        return new Settings(settingsMap); // Assuming Settings has a constructor that takes a Map
     }
 
-    public static void saveUserSettings(String username, Settings settings) {
-        File settingsFile = new File(USER_DATA_FOLDER + username + SETTINGS_SUFFIX);
-        // Add logic to write settings to the settingsFile
+    // Method to load categories
+    public static List<Category> loadCategories(String username) {
+        try {
+            String json = new String(Files.readAllBytes(Paths.get(USER_DATA_FOLDER + username + CATEGORIES_SUFFIX)));
+            Type listType = new TypeToken<List<Category>>(){}.getType();
+            return new Gson().fromJson(json, listType);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 
-    // Additional methods and logic as necessary...
+    // Method to save expenses
+    public static void saveExpenses(String username, List<Expense> expenses) {
+        Gson gson = new Gson();
+        String json = gson.toJson(expenses);
+        try {
+            Files.write(Paths.get(USER_DATA_FOLDER + username + EXPENSES_SUFFIX), json.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Method to load expenses
+    public static List<Expense> loadExpenses(String username) {
+        try {
+            String json = new String(Files.readAllBytes(Paths.get(USER_DATA_FOLDER + username + EXPENSES_SUFFIX)));
+            Type listType = new TypeToken<List<Expense>>(){}.getType();
+            return new Gson().fromJson(json, listType);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    // Method to delete a user account and associated data
+    public static boolean deleteUserAccount(String username) {
+        File userFile = new File(USER_DATA_FOLDER + username + CREDENTIALS_SUFFIX);
+        File categoriesFile = new File(USER_DATA_FOLDER + username + CATEGORIES_SUFFIX);
+        File expensesFile = new File(USER_DATA_FOLDER + username + EXPENSES_SUFFIX);
+        boolean deletedUser = userFile.delete();
+        boolean deletedCategories = categoriesFile.delete();
+        boolean deletedExpenses = expensesFile.delete();
+        return deletedUser && deletedCategories && deletedExpenses;
+    }
+
+    // Add any additional methods needed for your application
 }
+
